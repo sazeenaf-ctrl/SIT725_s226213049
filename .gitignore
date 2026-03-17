@@ -1,3 +1,12 @@
+node_modules/
+*.log
+npm-debug.log*
+.env
+.env.*.local
+.DS_Store
+Thumbs.db
+.vscode/
+
 1.3P/node_modules/
 1.3P/*.log
 1.3P/npm-debug.log*
@@ -6,3 +15,12 @@
 1.3P/.DS_Store
 1.3P/Thumbs.db
 1.3P/.vscode/
+
+2.2P/node_modules/
+2.2P/*.log
+2.2P/npm-debug.log*
+2.2P/.env
+2.2P/.env.*.local
+2.2P/.DS_Store
+2.2P/Thumbs.db
+2.2P/.vscode/
