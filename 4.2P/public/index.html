@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Books Collection</title>
+    <!-- Material Icon Font -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="brown darken-2">
+        <div class="nav-wrapper container">
+            <a href="#" class="brand-logo"><i class="material-icons">menu_book</i>Classic Books</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Categories</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-body">
+        <div class="container">
+            <div class="row">
+                <div class="col s12 center-align">
+                    <h1 id="heading" class="brown-text text-darken-3">Welcome to Classic Books</h1>
+                    <p class="flow-text">Explore some of the most famous literary works in history.</p>
+                </div>
+
+                <div class="col s12 center-align">
+                    <!-- Materialboxed image -->
+                    <img class="materialboxed materialboxed-image responsive-img" src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=800" alt="Library">
+                </div>
+                
+                <div class="col s12 center-align" style="margin-top: 30px;">
+                    <a class="waves-effect waves-light btn brown darken-1 click-me-button modal-trigger" id="clickMeButton" data-target="modal1">
+                        <i class="material-icons left">auto_stories</i>Join Reader Club
+                    </a>
+                </div>
+            </div>
+
+            <div class="row" id="card-section">
+                <!-- Cards will be populated here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Modal Structure -->
+        <div id="modal1" class="modal modal-fixed-footer">
+            <div class="row modal-content">
+                <h4>Reader Club Subscription</h4>
+                <p>Join our club to get the latest book recommendations.</p>
+                <form class="col s12">
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <input placeholder="Placeholder" id="first_name" type="text" class="validate">
+                            <label for="first_name">First Name</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <input id="last_name" type="text" class="validate">
+                            <label for="last_name">Last Name</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="password" type="password" class="validate">
+                            <label for="password">Password</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="email" type="email" class="validate">
+                            <label for="email">Email</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 center-align">
+                            <a class="waves-effect waves-light btn brown" id="formSubmit">Submit</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="page-footer brown darken-2">
+        <div class="footer-copyright">
+            <div class="container">
+            © 2026 Classic Books Inc.
+            <a class="grey-text text-lighten-4 right" href="#!">More Links</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+</body>
+</html>

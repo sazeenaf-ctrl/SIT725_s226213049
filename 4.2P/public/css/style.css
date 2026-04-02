@@ -1,0 +1,38 @@
+body {
+    background-color: #fcfcfc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.materialboxed-image {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin: 0 auto;
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.card-image img {
+    height: 250px;
+    object-fit: cover;
+}
+
+#heading {
+    font-weight: 300;
+}
+
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card .card-content {
+    padding-bottom: 10px;
+}
