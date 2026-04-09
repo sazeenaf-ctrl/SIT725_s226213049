@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Books Catalog</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 16px;
+      color: #111;
+    }
+
+    p.subtitle {
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    button#getAllBtn {
+      background-color: #2c5f8a;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 24px;
+    }
+
+    button#getAllBtn:hover {
+      background-color: #1f4870;
+    }
+
+    #booksList {
+      list-style: none;
+      max-width: 500px;
+    }
+
+    #booksList li {
+      padding: 8px 0;
+      font-size: 1rem;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+      color: #2c5f8a;
+    }
+
+    #booksList li:hover {
+      text-decoration: underline;
+    }
+
+    /* Detail panel */
+    #bookDetail {
+      display: none;
+      max-width: 500px;
+      margin-top: 28px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 20px 24px;
+    }
+
+    #bookDetail h2 {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: #2c3e50;
+    }
+
+    #bookDetail .field {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 6px 12px;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    #bookDetail .field .label {
+      font-weight: bold;
+      color: #444;
+    }
+
+    #backBtn {
+      margin-top: 16px;
+      background: none;
+      border: 1px solid #999;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    #backBtn:hover {
+      background-color: #eee;
+    }
+
+    #errorMsg {
+      color: red;
+      margin-top: 12px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Books Catalogue developed by s226213049</h1>
+  <p class="subtitle">Click the button below to get all books from the server:</p>
+
+  <button id="getAllBtn">Get all books</button>
+
+  <p id="errorMsg"></p>
+
+  <ul id="booksList"></ul>
+
+  <!-- Book detail panel (shown on list item click) -->
+  <div id="bookDetail">
+    <h2>Book Details</h2>
+    <div class="field"><span class="label">Title:</span><span id="dTitle"></span></div>
+    <div class="field"><span class="label">Author:</span><span id="dAuthor"></span></div>
+    <div class="field"><span class="label">Year:</span><span id="dYear"></span></div>
+    <div class="field"><span class="label">Genre:</span><span id="dGenre"></span></div>
+    <div class="field"><span class="label">Summary:</span><span id="dSummary"></span></div>
+    <div class="field"><span class="label">Price (AUD):</span><span id="dPrice"></span></div>
+    <button id="backBtn">← Back to list</button>
+  </div>
+
+  <script>
+    const getAllBtn   = document.getElementById('getAllBtn');
+    const listEl      = document.getElementById('booksList');
+    const detailEl    = document.getElementById('bookDetail');
+    const errorMsg    = document.getElementById('errorMsg');
+    const backBtn     = document.getElementById('backBtn');
+
+    // Detail field refs
+    const dTitle   = document.getElementById('dTitle');
+    const dAuthor  = document.getElementById('dAuthor');
+    const dYear    = document.getElementById('dYear');
+    const dGenre   = document.getElementById('dGenre');
+    const dSummary = document.getElementById('dSummary');
+    const dPrice   = document.getElementById('dPrice');
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+    }
+
+    function clearError() {
+      errorMsg.textContent = '';
+    }
+
+    // Render flat list: "Title Price AUD"
+    function renderList(books) {
+      listEl.innerHTML = '';
+      detailEl.style.display = 'none';
+
+      if (!Array.isArray(books) || books.length === 0) {
+        listEl.innerHTML = '<li>No books found.</li>';
+        return;
+      }
+
+      for (const book of books) {
+        const li = document.createElement('li');
+        li.textContent = `${book.title} ${parseFloat(book.price).toFixed(2)} AUD`;
+        li.dataset.id = book._id;
+        li.addEventListener('click', () => fetchBookById(book._id));
+        listEl.appendChild(li);
+      }
+    }
+
+    // Show detail panel for a single book
+    function renderDetail(book) {
+      listEl.style.display = 'none';
+      detailEl.style.display = 'block';
+
+      dTitle.textContent   = book.title;
+      dAuthor.textContent  = book.author;
+      dYear.textContent    = book.year;
+      dGenre.textContent   = book.genre;
+      dSummary.textContent = book.summary;
+      dPrice.textContent   = `${parseFloat(book.price).toFixed(2)} AUD`;
+    }
+
+    // Fetch all books
+    getAllBtn.addEventListener('click', async () => {
+      clearError();
+      try {
+        const res = await fetch('/api/books');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const body = await res.json();
+        listEl.style.display = '';
+        renderList(body.data);
+      } catch (err) {
+        showError('Error fetching books: ' + err.message);
+      }
+    });
+
+    // Fetch single book by id
+    async function fetchBookById(id) {
+      clearError();
+      try {
+        const res = await fetch(`/api/books/${id}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const body = await res.json();
+        renderDetail(body.data);
+      } catch (err) {
+        showError('Error fetching book: ' + err.message);
+      }
+    }
+
+    // Back button returns to list view
+    backBtn.addEventListener('click', () => {
+      detailEl.style.display = 'none';
+      listEl.style.display = '';
+    });
+  </script>
+</body>
+</html>
