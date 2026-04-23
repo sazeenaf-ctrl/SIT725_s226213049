@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Books Catalog | SIT725 6.2C</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+    h1 { color: #2c3e50; }
+    button { background: #2980b9; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; margin: 5px; }
+    button:hover { background: #1a6fa3; }
+    #output { background: white; padding: 20px; border-radius: 6px; margin-top: 20px; white-space: pre-wrap; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <h1>📚 Books Catalog API — SIT725 6.2C</h1>
+  <p>Use the buttons below to interact with the REST API.</p>
+  <button onclick="fetchAll()">Get All Books</button>
+  <button onclick="fetchById(1)">Get Book ID 1</button>
+  <button onclick="fetchById(99)">Get Book ID 99 (Not Found)</button>
+  <button onclick="fetchTotal(0)">Total Price (no discount)</button>
+  <button onclick="fetchTotal(10)">Total Price (10% off)</button>
+  <div id="output">Results will appear here...</div>
+  <script>
+    async function call(url) {
+      const res = await fetch(url);
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+    function fetchAll() { call('/api/books'); }
+    function fetchById(id) { call(`/api/books/${id}`); }
+    function fetchTotal(d) { call(`/api/books/price/total?discount=${d}`); }
+  </script>
+</body>
+</html>
