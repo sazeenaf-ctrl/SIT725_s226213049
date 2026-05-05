@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Books Catalog</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      color: #2c3e50;
+    }
+
+    #status {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #666;
+      font-style: italic;
+    }
+
+    #liveBar {
+      max-width: 700px;
+      margin: 0 auto 16px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    #viewers {
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    #activity {
+      flex: 1;
+      text-align: right;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-style: italic;
+    }
+
+    #addBookCard {
+      max-width: 700px;
+      margin: 0 auto 18px auto;
+      background: #fff;
+      border-radius: 6px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      border-left: 5px solid #2c3e50;
+    }
+
+    #addBookCard h2 {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    #addBookForm {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    #addBookForm input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    #addBookForm input:focus {
+      border-color: #2c3e50;
+      box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.12);
+    }
+
+    #addBookForm .full {
+      grid-column: 1 / -1;
+    }
+
+    #addBookForm button {
+      grid-column: 1 / -1;
+      padding: 10px 12px;
+      background: #2c3e50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #addBookForm button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #booksList {
+      max-width: 700px;
+      margin: 0 auto;
+      list-style: none;
+    }
+
+    #booksList li {
+      background: #fff;
+      border-left: 5px solid #2c3e50;
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #booksList li .title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    #booksList li .author {
+      font-size: 0.95rem;
+      color: #555;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Books Catalog</h1>
+  <div id="liveBar">
+    <div>Live viewers: <span id="viewers">0</span></div>
+    <div id="activity">Connecting…</div>
+  </div>
+
+  <div id="addBookCard">
+    <h2>Add a book (updates everyone live)</h2>
+    <form id="addBookForm">
+      <input id="title" placeholder="Title *" required />
+      <input id="author" placeholder="Author *" required />
+      <input id="year" placeholder="Year (optional)" inputmode="numeric" />
+      <input id="genre" placeholder="Genre (optional)" />
+      <input id="summary" class="full" placeholder="Summary (optional)" />
+      <button id="addBtn" type="submit">Add book</button>
+    </form>
+  </div>
+  <p id="status">Loading books...</p>
+  <ul id="booksList"></ul>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const statusEl = document.getElementById('status');
+    const listEl = document.getElementById('booksList');
+    const viewersEl = document.getElementById('viewers');
+    const activityEl = document.getElementById('activity');
+    const formEl = document.getElementById('addBookForm');
+    const addBtn = document.getElementById('addBtn');
+
+    const socket = io();
+    let booksCache = [];
+
+    function setActivity(text) {
+      activityEl.textContent = text;
+    }
+
+    function render(books) {
+      listEl.innerHTML = '';
+
+      if (!Array.isArray(books) || books.length === 0) {
+        statusEl.textContent = 'No books found.';
+        return;
+      }
+
+      statusEl.textContent = `Showing ${books.length} book(s):`;
+
+      for (const book of books) {
+        const li = document.createElement('li');
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'title';
+        titleEl.textContent = book.title;
+
+        const authorEl = document.createElement('div');
+        authorEl.className = 'author';
+        authorEl.textContent = `by ${book.author}`;
+
+        li.appendChild(titleEl);
+        li.appendChild(authorEl);
+        listEl.appendChild(li);
+      }
+    }
+
+    socket.on('connect', () => setActivity('Connected. Waiting for activity…'));
+    socket.on('disconnect', () => setActivity('Disconnected.'));
+    socket.on('stats:viewers', (payload) => {
+      if (payload && typeof payload.viewers === 'number') viewersEl.textContent = payload.viewers;
+    });
+
+    socket.on('books:added', (book) => {
+      if (!book || !book.id) return;
+      booksCache = [book, ...booksCache.filter(b => b.id !== book.id)];
+      render(booksCache);
+      setActivity(`New book added: "${book.title}" by ${book.author}`);
+    });
+
+    formEl.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      addBtn.disabled = true;
+      setActivity('Adding book…');
+
+      const payload = {
+        title: document.getElementById('title').value.trim(),
+        author: document.getElementById('author').value.trim(),
+        year: document.getElementById('year').value.trim(),
+        genre: document.getElementById('genre').value.trim(),
+        summary: document.getElementById('summary').value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/books', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const body = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(body?.message || `HTTP ${res.status}`);
+
+        formEl.reset();
+        setActivity('Book added. Broadcasting to all viewers…');
+      } catch (err) {
+        console.error(err);
+        setActivity(`Failed to add book: ${err.message || err}`);
+      } finally {
+        addBtn.disabled = false;
+      }
+    });
+
+    // On load, fetch /api/books and render title + author
+    (async () => {
+      try {
+        const res = await fetch('/api/books');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const body = await res.json(); // { statusCode, data, message }
+        booksCache = Array.isArray(body.data) ? body.data : [];
+        render(booksCache);
+        setActivity('Loaded catalog. Add a book to see live updates.');
+      } catch (err) {
+        console.error('Error fetching books:', err);
+        statusEl.textContent = 'Error fetching books.';
+        setActivity('Failed to load catalog.');
+      }
+    })();
+  </script>
+</body>
+</html>
